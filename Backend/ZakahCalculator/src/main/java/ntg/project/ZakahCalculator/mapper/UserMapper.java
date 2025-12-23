@@ -4,8 +4,8 @@ import ntg.project.ZakahCalculator.dto.request.ProfileUpdateRequest;
 import ntg.project.ZakahCalculator.dto.request.RegistrationRequest;
 import ntg.project.ZakahCalculator.dto.response.*;
 import ntg.project.ZakahCalculator.entity.User;
-
 import org.springframework.stereotype.Component;
+
 import java.time.LocalDate;
 import java.util.Collections;
 
@@ -20,7 +20,7 @@ public class UserMapper {
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setRoles(Collections.emptyList());
-        user.setEnabled(false);
+        user.setVerified(false);
         user.setDeleted(false);
         return user;
     }
@@ -45,12 +45,12 @@ public class UserMapper {
     public UserResponse toResponse(User user) {
         if (user == null) return null;
         UserResponse response = new UserResponse();
-        response.setUserId(user.getId());
         response.setFullName(user.getName());
         response.setEmail(user.getEmail());
         if (user.getRoles() != null && !user.getRoles().isEmpty()) {
             response.setUserType(user.getRoles().get(0).getType());
         }
+        response.setVerified(user.isVerified());
         return response;
     }
 

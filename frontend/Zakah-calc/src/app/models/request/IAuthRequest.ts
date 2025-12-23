@@ -49,3 +49,7 @@ export interface ProfileUpdateRequest {
   firstName?: string;
   lastName?: string;
 }
+
+export interface ResendOtpRequest{
+  email?: string;
+}

@@ -31,6 +31,17 @@
         <div *ngIf="errorMessage" class="text-red-500 text-center mt-2">
           {{ errorMessage }}
         </div>
+        <div class="text-center mt-4">
+          <button
+            type="button"
+            class="text-sm text-emerald-600 hover:underline disabled:text-gray-400"
+            [disabled]="resendDisabled"
+            (click)="resendOtp()"
+          >
+            إعادة إرسال الرمز
+            <span *ngIf="resendDisabled">({{ resendCounter }})</span>
+          </button>
+        </div>
       </form>
     </div>
   </div>

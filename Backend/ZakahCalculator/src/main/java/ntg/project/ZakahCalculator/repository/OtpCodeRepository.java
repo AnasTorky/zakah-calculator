@@ -17,4 +17,6 @@ public interface OtpCodeRepository extends JpaRepository<OtpCode, Long> {
     Optional<OtpCode> findByResetToken(String resetToken);
 
     Optional<OtpCode> findByUserIdAndType(Long userId, OtpType otpType);
+
+    Optional<OtpCode> findByUserId(Long userId);
 }

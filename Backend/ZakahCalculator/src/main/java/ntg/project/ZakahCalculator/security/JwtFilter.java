@@ -45,7 +45,10 @@ public class JwtFilter extends OncePerRequestFilter {
         username = this.jwtService.extractUsernameFromToken(jwt);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             final User userDetails = (User) this.userDetailsService.loadUserByUsername(username);
-            if (userDetails.isDeleted() && !request.getRequestURI().equals("/api/v1/users/restore")) {
+            if (!userDetails.isVerified()) {
+                throw new BusinessException(ErrorCode.ACCOUNT_NOT_VERIFIED);
+            }
+            if (userDetails.isDeleted() && !request.getRequestURI().equals("/users/restore")) {
                 throw new BusinessException(ErrorCode.USER_ALREADY_DELETED);
             }
             if (this.jwtService.isTokenValid(jwt, userDetails.getUsername())) {

@@ -12,7 +12,7 @@ import {
   AuthenticationRequest,
   ForgetPasswordRequest,
   RefreshRequest,
-  RegistrationRequest,
+  RegistrationRequest, ResendOtpRequest,
   ResetPasswordRequest,
   VerifyAccountRequest,
   VerifyOtpRequest
@@ -40,10 +40,11 @@ this.isLoggedIn.set(!!AuthStorageService.getAccessToken());
     return this.http
       .post<AuthenticationResponse>(`${this.BASE_URL}/login`, request)
       .pipe(
-        tap(res =>{ AuthStorageService.saveTokens(res)
+        tap(res =>{
+          AuthStorageService.saveTokens(res)
           this.isLoggedIn.set(true);
         })
-      
+
       );
   }
 
@@ -55,7 +56,7 @@ this.isLoggedIn.set(!!AuthStorageService.getAccessToken());
     request: VerifyAccountRequest
   ): Observable<AuthenticationResponse> {
     return this.http
-      .post<AuthenticationResponse>(`${this.BASE_URL}/verify`, request)
+      .post<AuthenticationResponse>(`${this.BASE_URL}/verify-account`, request)
       .pipe(
         tap(res => AuthStorageService.saveTokens(res))
       );
@@ -101,6 +102,11 @@ this.isLoggedIn.set(!!AuthStorageService.getAccessToken());
       `${this.BASE_URL}/password/reset-password`,
       request
     );
+  }
+
+  /* ================= OTP ================= */
+  resendOtp(request: ResendOtpRequest): Observable<void>{
+    return this.http.post<void>(`${this.BASE_URL}/password/reset-password`,request);
   }
 
   /* ================= LOGOUT ================= */

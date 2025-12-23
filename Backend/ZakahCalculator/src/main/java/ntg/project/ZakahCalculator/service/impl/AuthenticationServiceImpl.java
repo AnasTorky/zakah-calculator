@@ -4,20 +4,20 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ntg.project.ZakahCalculator.dto.request.*;
-import ntg.project.ZakahCalculator.dto.response.*;
-import ntg.project.ZakahCalculator.entity.OtpCode;
+import ntg.project.ZakahCalculator.dto.response.AuthenticationResponse;
+import ntg.project.ZakahCalculator.dto.response.ForgetPasswordResponse;
+import ntg.project.ZakahCalculator.dto.response.ResetPasswordResponse;
+import ntg.project.ZakahCalculator.dto.response.VerifyOtpResponse;
 import ntg.project.ZakahCalculator.entity.User;
 import ntg.project.ZakahCalculator.entity.util.OtpType;
 import ntg.project.ZakahCalculator.exception.BusinessException;
 import ntg.project.ZakahCalculator.exception.ErrorCode;
 import ntg.project.ZakahCalculator.mapper.AuthenticationMapper;
-import ntg.project.ZakahCalculator.mapper.OtpCodeMapper;
 import ntg.project.ZakahCalculator.mapper.UserMapper;
-import ntg.project.ZakahCalculator.repository.OtpCodeRepository;
 import ntg.project.ZakahCalculator.repository.UserRepository;
 import ntg.project.ZakahCalculator.security.JwtService;
 import ntg.project.ZakahCalculator.service.AuthenticationService;
-import ntg.project.ZakahCalculator.service.EmailService;
+import ntg.project.ZakahCalculator.service.OtpService;
 import ntg.project.ZakahCalculator.service.RoleService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -36,14 +35,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final EmailService emailService;
-    private final OtpCodeRepository otpCodeRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
+    private final OtpService otpService;
 
     private final UserMapper userMapper;
     private final AuthenticationMapper authenticationMapper;
-    private final OtpCodeMapper otpCodeMapper;
 
     @Override
     public AuthenticationResponse login(AuthenticationRequest request) {
@@ -57,10 +54,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User user = (User) auth.getPrincipal();
 
-        String accessToken = jwtService.generateAccessToken(user.getUsername());
-        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
-
-        return authenticationMapper.toResponse(accessToken, refreshToken, user);
+        if (!user.isVerified()) {
+            otpService.generateAndSend(user, OtpType.EMAIL_VERIFICATION);
+            throw new BusinessException(ErrorCode.ACCOUNT_NOT_VERIFIED);
+        }
+        return generateTokens(user);
     }
 
     @Override
@@ -81,20 +79,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User savedUser = userRepository.save(user);
 
-        OtpCode otp = otpCodeMapper.toEntity(
-                savedUser,
-                generateOtp(),
-                OtpType.EMAIL_VERIFICATION
-        );
-
-        otpCodeRepository.save(otp);
-
-        emailService.sendEmail(
-                savedUser.getEmail(),
-                savedUser.getName(),
-                OtpType.EMAIL_VERIFICATION,
-                otp.getCode()
-        );
+        otpService.generateAndSend(savedUser, OtpType.EMAIL_VERIFICATION);
 
         log.info("User registered successfully: {}", savedUser.getEmail());
     }
@@ -103,24 +88,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Transactional
     public AuthenticationResponse verifyAccount(VerifyAccountRequest request) {
 
-        OtpCode otp = otpCodeRepository
-                .findByCodeAndTypeAndUsedFalse(request.getOtpCode(), OtpType.EMAIL_VERIFICATION)
-                .orElseThrow(() -> new BusinessException(ErrorCode.OTP_TOKEN_INVALID));
-
-        if (!otp.isValid()) {
-            throw new BusinessException(ErrorCode.OTP_TOKEN_INVALID);
-        }
-
-        otp.markAsUsed();
+        var otp = otpService.validateOtp(
+                request.getOtpCode(),
+                OtpType.EMAIL_VERIFICATION
+        );
 
         User user = otp.getUser();
-        user.setEnabled(true);
+        user.setVerified(true);
         userRepository.save(user);
 
-        String accessToken = jwtService.generateAccessToken(user.getUsername());
-        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
-
-        return authenticationMapper.toResponse(accessToken, refreshToken, user);
+        return generateTokens(user);
     }
 
     @Override
@@ -144,42 +121,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Transactional
     public ForgetPasswordResponse forgetPassword(ForgetPasswordRequest request) {
 
-        User user = userRepository.findByEmailIgnoreCase(request.getEmail())
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        User user = getByEmail(request.getEmail());
+        otpService.generateAndSend(user, OtpType.PASSWORD_RESET);
 
-        OtpCode otp = otpCodeMapper.toEntity(
-                user,
-                generateOtp(),
-                OtpType.PASSWORD_RESET
-        );
-
-        otpCodeRepository.save(otp);
-
-        emailService.sendEmail(
-                user.getEmail(),
-                user.getName(),
-                OtpType.PASSWORD_RESET,
-                otp.getCode()
-        );
         return userMapper.toForgotPasswordResponse(user);
     }
 
     @Override
     @Transactional
     public VerifyOtpResponse verifyOtp(VerifyOtpRequest request) {
-
-        OtpCode otp = otpCodeRepository
-                .findByCodeAndTypeAndUsedFalse(request.getOtp(), OtpType.PASSWORD_RESET)
-                .orElseThrow(() -> new BusinessException(ErrorCode.OTP_TOKEN_INVALID));
-
-        if (!otp.isValid()) {
-            throw new BusinessException(ErrorCode.OTP_TOKEN_INVALID);
-        }
-
-        otp.markAsUsed();
-        otp.setResetToken(UUID.randomUUID().toString());
-
-        return otpCodeMapper.toVerifyOtpResponse(otp);
+        return otpService.verifyPasswordResetOtp(request.getOtp());
     }
 
     @Override
@@ -190,9 +141,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new BusinessException(ErrorCode.PASSWORD_MISMATCH);
         }
 
-        OtpCode otp = otpCodeRepository
-                .findByResetToken(request.getResetToken())
-                .orElseThrow(() -> new BusinessException(ErrorCode.OTP_TOKEN_INVALID));
+        var otp = otpService.validateOtp(
+                request.getResetToken(),
+                OtpType.PASSWORD_RESET
+        );
 
         User user = otp.getUser();
 
@@ -201,15 +153,26 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        otp.setResetToken(null);
-
         userRepository.save(user);
-
 
         return userMapper.toResetPasswordResponse(user);
     }
 
-    private String generateOtp() {
-        return String.format("%06d", (int) (Math.random() * 1_000_000));
+    @Override
+    public void resendVerificationOtp(ResendOtpRequest request) {
+
+    }
+
+    /* ================= HELPERS ================= */
+
+    private AuthenticationResponse generateTokens(User user) {
+        String accessToken = jwtService.generateAccessToken(user.getUsername());
+        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
+        return authenticationMapper.toResponse(accessToken, refreshToken, user);
+    }
+
+    private User getByEmail(String email) {
+        return userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 }

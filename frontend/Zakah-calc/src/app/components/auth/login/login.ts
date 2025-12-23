@@ -65,13 +65,16 @@ export class Login implements OnInit {
     this.authService.login(request).subscribe({
       next: (res) => {
         console.log(res)
-        // التوكن بيتخزن تلقائي من AuthStorageService
         this.router.navigate(['/intro']);
       },
       error: (err) => {
         if (err.status === 401) {
           this.serverError.set('البريد الإلكتروني أو كلمة المرور غير صحيحة');
-        } else {
+        }else if (err.status === 403){
+          this.router.navigate(['/verify-otp'], {
+            queryParams: { email: request.email }
+          });
+        }else {
           this.serverError.set('حدث خطأ غير متوقع، حاول مرة أخرى');
         }
         this.isLoading.set(false);

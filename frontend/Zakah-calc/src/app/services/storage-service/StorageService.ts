@@ -35,14 +35,14 @@ export class AuthStorageService {
   }
 
   static hasAccessToken(): boolean {
-    
+
     return !!this.getAccessToken();
   }
 
   /* ================= USER ================= */
 
   static saveUser(user: UserResponse): void {
-    
+
     localStorage.setItem(USER, JSON.stringify(user));
   }
 
@@ -52,10 +52,10 @@ export class AuthStorageService {
     return raw ? (JSON.parse(raw) as UserResponse) : null;
   }
 
-  static getUserId(): number | null {
-    if (!this.isBrowser()) return null;
-    return this.getUser()?.userId ?? null;
-  }
+  // static getUserId(): number | null {
+  //   if (!this.isBrowser()) return null;
+  //   return this.getUser()?.userId ?? null;
+  // }
 
   static getUserType(): UserType | null {
     if (!this.isBrowser()) return null;

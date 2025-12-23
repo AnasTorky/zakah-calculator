@@ -10,8 +10,8 @@ import ntg.project.ZakahCalculator.entity.util.UserType;
 @Builder
 @AllArgsConstructor
 public class UserResponse {
-    private Long userId;
     private String email;
     private String fullName;
     private UserType userType;
+    private boolean isVerified;
 }
