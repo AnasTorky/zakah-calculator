@@ -13,11 +13,6 @@ public interface ZakahIndividualRecordService {
     // Main method: Calculate zakah, determine status, compare, and save
     ZakahIndividualRecordResponse save(ZakahIndividualRecordRequest request);
 
-    // Update method: Recalculate zakah and update existing record
-    ZakahIndividualRecordResponse update(Long id, ZakahIndividualRecordRequest request);
-
-
-
     // Detailed responses (all fields)
     ZakahIndividualRecordResponse findByIdAndUserId(Long id);
     List<ZakahIndividualRecordResponse> findAllByUserId();

@@ -48,7 +48,7 @@ public enum ErrorCode {
     NEGATIVE_ZAKAH_POOL("NEGATIVE_ZAKAH_POOL", "Zakah pool cannot be negative. Your liabilities exceed your assets", BAD_REQUEST),
     GOLD_PRICE_INVALID("GOLD_PRICE_INVALID", "Gold price must be greater than zero", BAD_REQUEST),
     BALANCE_SHEET_DATE_BEFORE_LAST_RECORD("BALANCE_SHEET_DATE_BEFORE_LAST_RECORD", "Balance sheet date cannot be before your last record date: %s", BAD_REQUEST)
-    , OTP_TOKEN_EXPIRED("OTP_TOKEN_EXPIRED","" ,FORBIDDEN );
+    , OTP_TOKEN_EXPIRED("OTP_TOKEN_EXPIRED","otp is expired" ,FORBIDDEN );
     private final String code;
     private final String defaultMessage;
     private final HttpStatus status;

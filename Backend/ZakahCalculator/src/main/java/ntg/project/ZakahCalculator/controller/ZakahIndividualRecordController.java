@@ -117,18 +117,4 @@ public class ZakahIndividualRecordController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    //Update individual zakah record
-    @PutMapping("/{id}")
-    public ResponseEntity<ZakahIndividualRecordResponse> updateZakahRecord(
-            @PathVariable Long id,
-            @Valid @RequestBody ZakahIndividualRecordRequest request) {
-
-        log.info("Received request to update individual zakah record with id: {}", id);
-
-        ZakahIndividualRecordResponse response = zakahIndividualRecordService.update(id, request);
-
-        log.info("Individual zakah record updated successfully with id: {}", id);
-
-        return ResponseEntity.ok(response);
-    }
 }
