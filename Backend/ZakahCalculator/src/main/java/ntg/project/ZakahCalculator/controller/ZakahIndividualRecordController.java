@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/zakah/individual")
+@RequestMapping("/zakah/individual")
 @RequiredArgsConstructor
 @Slf4j
 public class ZakahIndividualRecordController {

@@ -8,47 +8,65 @@ import static org.springframework.http.HttpStatus.*;
 @Getter
 public enum ErrorCode {
 
+    // ===== User / Auth =====
     USER_NOT_FOUND("USER_NOT_FOUND", "user not found with id %s", NOT_FOUND),
-    CHANGE_PASSWORD_MISMATCH("CHANGE_PASSWORD_MISMATCH", "Current password and new password are the same", BAD_REQUEST),
-    INVALID_CURRENT_PASSWORD("INVALID_CURRENT_PASSWORD", "Current password are invalid", BAD_REQUEST),
-    ACCOUNT_ALREADY_DEACTIVATED("ACCOUNT_ALREADY_DEACTIVATED", "account already activated", CONFLICT),
-    EMAIL_ALREADY_EXISTS("EMAIL_ALREADY_EXISTS", "email already exists", CONFLICT),
-    PHONE_ALREADY_EXISTS("PHONE_ALREADY_EXISTS", "phone already exists", CONFLICT),
-    PASSWORD_MISMATCH("PASSWORD_MISMATCH", "password don't match", BAD_REQUEST),
-    ERR_USER_DISABLED("ERR_USER_DISABLED", "user is disabled", UNAUTHORIZED),
-    BAD_CREDENTIALS("BAD_CREDENTIALS", "Username and / or password is incorrect", UNAUTHORIZED),
     USERNAME_NOT_FOUND("USERNAME_NOT_FOUND", "username not found", NOT_FOUND),
-    INTERNAL_EXCEPTION("INTERNAL_EXCEPTION", "Internal server error", INTERNAL_SERVER_ERROR),
+
+    EMAIL_ALREADY_EXISTS("EMAIL_ALREADY_EXISTS", "email already exists", CONFLICT),
     USER_ALREADY_DELETED("USER_ALREADY_DELETED", "User is already deleted", CONFLICT),
     USER_ALREADY_ACTIVE("USER_ALREADY_ACTIVE", "User is already active", CONFLICT),
-    PERIOD_EXPIRED("PERIOD_EXPIRED", "period expired", BAD_REQUEST),
-    IMAGE_NOT_FOUND("IMAGE_NOT_FOUND", "no images for this user", NOT_FOUND),
-    UPLOAD_IMAGE_FAILED("UPLOAD_IMAGE_FAILED", "Uploading image failed", INTERNAL_SERVER_ERROR),
-    UN_EXPECTED_FOLLOW("UN_EXPECTED_FOLLOW", "Can't Complete this follow", BAD_REQUEST),
-    POST_NOT_FOUND("POST_NOT_FOUND", "post not found", NOT_FOUND),
-    UNAUTHORIZED_ACTION("UNAUTHORIZED_ACTION", "unauthorized action", FORBIDDEN),
-    RECORD_NOT_FOUND("RECORD_NOT_FOUND", "RECORD_NOT_FOUND", NOT_FOUND),
-    NOTIFICATION_NOT_FOUND("NOTIFICATION_NOT_FOUND", "Notification Not Found", NOT_FOUND),
-    LIKE_CONFLICT("LIKE_CONFLICT", "like conflict", CONFLICT),
+    ACCOUNT_NOT_VERIFIED("ACCOUNT_NOT_VERIFIED", "account not verified", FORBIDDEN),
+
+    ERR_USER_DISABLED("ERR_USER_DISABLED", "user is disabled", FORBIDDEN),
+
+    BAD_CREDENTIALS("BAD_CREDENTIALS", "Username and / or password is incorrect", UNAUTHORIZED),
+    INVALID_CURRENT_PASSWORD("INVALID_CURRENT_PASSWORD", "Current password is invalid", UNAUTHORIZED),
+
+    // ===== Password / Validation =====
+    CHANGE_PASSWORD_MISMATCH("CHANGE_PASSWORD_MISMATCH", "Current password and new password are the same", BAD_REQUEST),
+    PASSWORD_MISMATCH("PASSWORD_MISMATCH", "password don't match", BAD_REQUEST),
+
+    // ===== JWT / Security =====
     JWT_NOT_VALID("JWT_NOT_VALID", "access token not valid", UNAUTHORIZED),
-    MAXIMUM_UPLOAD_SIZE_INVALID("MAXIMUM_UPLOAD_SIZE_INVALID", "Maximum upload size is 10MB", BAD_REQUEST),
-    IMAGE_DELETE_FAILED("IMAGE_DELETE_FAILED", "Image delete failed or already image was deleted", INTERNAL_SERVER_ERROR),
-    FORGET_PASSWORD_SENDING_OTP_FAILED("FORGET_PASSWORD_SENDING_OTP_FAILED", "failed to send otp to your account", INTERNAL_SERVER_ERROR),
-    OTP_TOKEN_INVALID("OTP_TOKEN_INVALID", "invalid token send it again!!", INTERNAL_SERVER_ERROR),
-    EMPTY_FEED_FOR_USER("EMPTY_FEED_FOR_USER", "Follow Friends To see their Posts", NOT_FOUND),
-    IMAGE_TYPE_NOT_SUPPORTED("IMAGE_TYPE_NOT_SUPPORTED", "Image type not supported. Allowed types: JPG, JPEG, PNG, BMP, WEBP, SVG", BAD_REQUEST),
-    ROLE_NOT_FOUND("ROLE_NOT_FOUND","role not found",NOT_FOUND),
-    ACCOUNT_NOT_VERIFIED("ACCOUNT_NOT_VERIFIED","account not verified",CONFLICT),
+
+    // ===== OTP =====
+    OTP_TOKEN_INVALID("OTP_TOKEN_INVALID", "invalid token, send it again", BAD_REQUEST),
+    OTP_TOKEN_EXPIRED("OTP_TOKEN_EXPIRED", "otp is expired", FORBIDDEN),
+    FORGET_PASSWORD_SENDING_OTP_FAILED("FORGET_PASSWORD_SENDING_OTP_FAILED","failed to send otp to your account",INTERNAL_SERVER_ERROR),
+
+    // ===== Roles =====
+    ROLE_NOT_FOUND("ROLE_NOT_FOUND", "role not found", NOT_FOUND),
+
+    // ===== Upload =====
+    MAXIMUM_UPLOAD_SIZE_INVALID(
+            "MAXIMUM_UPLOAD_SIZE_INVALID",
+            "Maximum upload size is 10MB",
+            PAYLOAD_TOO_LARGE
+    ),
+
+    // ===== Zakah =====
     ZAKAH_RECORD_NOT_FOUND("ZAKAH_RECORD_NOT_FOUND", "Zakah record not found with id %s", NOT_FOUND),
-    ZAKAH_CALCULATION_FAILED("ZAKAH_CALCULATION_FAILED", "Failed to calculate zakah: %s", UNPROCESSABLE_ENTITY),
+
     INVALID_ZAKAH_DATA("INVALID_ZAKAH_DATA", "Invalid zakah data: %s", BAD_REQUEST),
-    UNAUTHORIZED_ZAKAH_ACCESS("UNAUTHORIZED_ZAKAH_ACCESS", "You are not authorized to access zakah record with id %s", FORBIDDEN),
-    NEGATIVE_FINANCIAL_VALUE("NEGATIVE_FINANCIAL_VALUE", "%s cannot be negative", BAD_REQUEST),
     INVALID_BALANCE_SHEET_DATE("INVALID_BALANCE_SHEET_DATE", "Invalid balance sheet date: %s", BAD_REQUEST),
-    NEGATIVE_ZAKAH_POOL("NEGATIVE_ZAKAH_POOL", "Zakah pool cannot be negative. Your liabilities exceed your assets", BAD_REQUEST),
+
+    BALANCE_SHEET_DATE_BEFORE_LAST_RECORD(
+            "BALANCE_SHEET_DATE_BEFORE_LAST_RECORD",
+            "Balance sheet date cannot be before your last record date: %s",
+            CONFLICT
+    ),
+
+    NEGATIVE_ZAKAH_POOL(
+            "NEGATIVE_ZAKAH_POOL",
+            "Zakah pool cannot be negative. Your liabilities exceed your assets",
+            UNPROCESSABLE_ENTITY
+    ),
+
     GOLD_PRICE_INVALID("GOLD_PRICE_INVALID", "Gold price must be greater than zero", BAD_REQUEST),
-    BALANCE_SHEET_DATE_BEFORE_LAST_RECORD("BALANCE_SHEET_DATE_BEFORE_LAST_RECORD", "Balance sheet date cannot be before your last record date: %s", BAD_REQUEST)
-    , OTP_TOKEN_EXPIRED("OTP_TOKEN_EXPIRED","otp is expired" ,FORBIDDEN );
+
+    // ===== General =====
+    INTERNAL_EXCEPTION("INTERNAL_EXCEPTION", "Internal server error", INTERNAL_SERVER_ERROR);
+
     private final String code;
     private final String defaultMessage;
     private final HttpStatus status;
@@ -59,3 +77,4 @@ public enum ErrorCode {
         this.status = status;
     }
 }
+

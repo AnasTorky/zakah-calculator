@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(PUBLIC_URLS)
                                 .permitAll()
+                                .requestMatchers("/zakah/company/**").hasRole("COMPANY")
+                                .requestMatchers("/zakah/individual/**").hasRole("INDIVIDUAL")
                                 .anyRequest()
                                 .authenticated())
                 .sessionManagement(session ->
