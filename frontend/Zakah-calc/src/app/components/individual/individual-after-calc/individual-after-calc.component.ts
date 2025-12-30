@@ -1,9 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { Router } from 'express';
-import { ZakahCompanyRecordSummaryResponse } from '../../../models/response/ZakahCompanyResponse';
-import { ZakahIndividualRecordService } from '../../../services/zakah-individual-service/zakah-individual-service';
-import { ZakahIndividualRecordResponse } from '../../../models/response/ZakahIndividualResponse';
-import { CurrencyPipe } from '@angular/common';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {Router} from '@angular/router';
+import {ZakahIndividualRecordService} from '../../../services/zakah-individual-service/zakah-individual-service';
+import {ZakahIndividualRecordResponse} from '../../../models/response/ZakahIndividualResponse';
+import {CurrencyPipe} from '@angular/common';
 
 @Component({
   selector: 'app-individual-after-calc',
@@ -14,7 +13,7 @@ import { CurrencyPipe } from '@angular/common';
 export class IndividualAfterCalcComponent implements OnInit {
 
 router = inject(Router);
-  constructor() { } 
+  constructor() { }
   _zakahService = inject(ZakahIndividualRecordService);
 
   zakahResult = signal<ZakahIndividualRecordResponse | null>(null);
@@ -34,6 +33,5 @@ router = inject(Router);
   this._zakahService.latestResult.set(null);
   this.router.navigate(['/individual/wizard']); // go back to wizard
 }
-      
+
 }
-  

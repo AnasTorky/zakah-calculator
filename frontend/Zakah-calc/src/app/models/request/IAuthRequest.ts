@@ -47,7 +47,7 @@ export interface VerifyOtpRequest {
 export interface ResetPasswordRequest {
   resetToken: string;
   newPassword: string;
-  confirmPassword: string;
+  confirmNewPassword: string;
 }
 
 export interface ChangePasswordRequest {

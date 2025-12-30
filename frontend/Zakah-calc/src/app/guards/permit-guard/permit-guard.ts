@@ -1,9 +1,9 @@
 import { isPlatformBrowser } from '@angular/common';
 import { inject, PLATFORM_ID } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthStorageService } from '../services/storage-service/StorageService';
+import { AuthStorageService } from '../../services/storage-service/StorageService';
 
-export const landGuard: CanActivateFn = (route, state) => {
+export const permitGuard: CanActivateFn = (route, state) => {
   const platformId = inject(PLATFORM_ID);
   const router = inject(Router);
 
@@ -16,9 +16,8 @@ export const landGuard: CanActivateFn = (route, state) => {
 
   // ❌ If logged in → redirect away from guest pages
   if (token) {
-    return router.createUrlTree(['/intro']); // change if needed
+    return router.navigate(['/intro']);
   }
 
-  // ✅ Not logged in → allow access
   return true;
 };

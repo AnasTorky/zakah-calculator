@@ -1,15 +1,14 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { Router } from 'express';
-import { ZakahCompanyRecordRequest } from '../../../models/request/ZakahCompanyRequest';
-import { ZakahCompanyRecordSummaryResponse } from '../../../models/response/ZakahCompanyResponse';
-import { ZakahCompanyRecordService } from '../../../services/zakah-company-service/zakah-company-service';
-import { CurrencyPipe } from '@angular/common';
-import { ZakahIndividualRecordRequest } from '../../../models/request/ZakahIndividualRequest';
-import { ZakahIndividualRecordSummaryResponse } from '../../../models/response/ZakahIndividualResponse';
-import { ZakahIndividualRecordService } from '../../../services/zakah-individual-service/zakah-individual-service';
+import {Component, inject, signal} from '@angular/core';
+import {ZakahCompanyRecordRequest} from '../../../models/request/ZakahCompanyRequest';
+import {CurrencyPipe} from '@angular/common';
+import {ZakahIndividualRecordRequest} from '../../../models/request/ZakahIndividualRequest';
+import {ZakahIndividualRecordSummaryResponse} from '../../../models/response/ZakahIndividualResponse';
+import {ZakahIndividualRecordService} from '../../../services/zakah-individual-service/zakah-individual-service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-wizard-individual',
+  standalone: true,
   templateUrl: './wizard-individual.component.html',
   styleUrls: ['./wizard-individual.component.css'],
   imports: [CurrencyPipe]
@@ -77,7 +76,7 @@ export class WizardIndividualComponent {
         this.zakahService.latestResult.set(result);
 
         this.isCalculating.set(false);
-        this.router.navigate(['/individual/individual-after-calc']);
+        this.router.navigate(['/individual/after-calc']);
       },
       error: () => this.isCalculating.set(false)
     });

@@ -2,110 +2,153 @@ import { Routes } from '@angular/router';
 import { Login } from './components/auth/login/login';
 import { Register } from './components/auth/register/register';
 import { Landing } from './components/landing/landing';
-import { authGuard } from './guards/auth-guard';
 import { ForgetPasswordComponent } from './components/auth/forget-password/forget-password.component';
-import { landGuard } from './guards/land-guard';
 import { Intro } from './components/intro/intro';
 import { Navbar } from './shared/navbar/navbar';
 
+import { authGuard } from './guards/auth-guard/auth-guard';
+import { permitGuard } from './guards/permit-guard/permit-guard';
+import {RoleGuard} from './guards/authorization-guard/role-guard';
+import {WizardIndividualComponent} from './components/individual/wizard-individual/wizard-individual.component';
+
+
 export const routes: Routes = [
-  // ===================== LANDING =====================
-  { path: '', component: Landing, canActivate: [landGuard] },
 
-  // ===================== AUTH =====================
-  { path: 'register', component: Register, canActivate: [landGuard] },
-  { path: 'login', component: Login, canActivate: [landGuard] },
-
-  // ===================== PASSWORD FLOW =====================
+  // ===================== PUBLIC (NOT AUTHENTICATED) =====================
   {
-    path: 'password',
-    canActivate: [landGuard],
+    path: '',
+    canActivate: [permitGuard],
     children: [
-      { path: '', redirectTo: 'forgot-password', pathMatch: 'full' },
-      { path: 'forgot-password', component: ForgetPasswordComponent },
+      { path: '', component: Landing },
+      { path: 'login', component: Login },
+      { path: 'register', component: Register },
+
+      // ===== PASSWORD FLOW =====
       {
-        path: 'verify-password-otp',
-        loadComponent: () =>
-          import('./components/auth/verify-password-otp/verify-password-otp.component').then(
-            (m) => m.VerifyPasswordOtpComponent
-          ),
+        path: 'password',
+        children: [
+          { path: '', redirectTo: 'forgot-password', pathMatch: 'full' },
+          { path: 'forgot-password', component: ForgetPasswordComponent },
+          {
+            path: 'verify-password-otp',
+            loadComponent: () =>
+              import('./components/auth/verify-password-otp/verify-password-otp.component')
+                .then(m => m.VerifyPasswordOtpComponent),
+          },
+          {
+            path: 'new-password',
+            loadComponent: () =>
+              import('./components/auth/new-password/new-password.component')
+                .then(m => m.NewPasswordComponent),
+          },
+        ],
       },
+
+      // ===== ACCOUNT VERIFY =====
       {
-        path: 'new-password',
+        path: 'verify-otp',
         loadComponent: () =>
-          import('./components/auth/new-password/new-password.component').then(
-            (m) => m.NewPasswordComponent
-          ),
+          import('./components/auth/verify-otp-account/verify-otp-account.component')
+            .then(m => m.VerifyOtpAccountComponent),
       },
     ],
   },
 
-  // ===================== ACCOUNT VERIFY =====================
+  // ===================== AUTHENTICATED (ANY USER) =====================
   {
-    path: 'verify-otp',
-    loadComponent: () =>
-      import('./components/auth/verify-otp-account/verify-otp-account.component').then(
-        (m) => m.VerifyOtpAccountComponent
-      ),
+    path: '',
+    canActivate: [authGuard],
+    children: [
+      { path: 'intro', component: Intro },
+      { path: 'navbar', component: Navbar },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./components/profile/profile')
+            .then(m => m.Profile),
+      },
+      {
+        path: 'guide',
+        loadComponent: () =>
+          import('./components/zakah-guide/zakah-guide')
+            .then(m => m.ZakahGuide),
+      },
+    ],
   },
 
-  // ===================== AUTHENTICATED ROUTES =====================
-  { path: 'intro', component: Intro, canActivate: [authGuard] },
+  // ===================== COMPANY (ROLE_COMPANY) =====================
   {
-    path: 'dashboard',
-    loadComponent: () => import('../app/components/company/dashboard/dashboard').then((m) => m.DashboardComponent),
-    canActivate: [authGuard],
+    path: 'wiza',
+    canActivate: [RoleGuard],
+    component: WizardIndividualComponent,
   },
   {
     path: 'company',
+    canActivate: [RoleGuard],
     children: [
-      { path: 'wizard', loadComponent: () => import('./components/company/wizard/wizard').then((m) => m.ZakahCompanyRecordComponent) },
-      { path: 'dashboard', loadComponent: () => import('../app/components/company/dashboard/dashboard').then((m) => m.DashboardComponent) },
-
+      {
+        path: 'wizard',
+        loadComponent: () =>
+          import('./components/company/wizard/wizard')
+            .then(m => m.ZakahCompanyRecordComponent),
+      },
+      {
+        path: '',
+        redirectTo: 'wizard',
+        pathMatch: "full"
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./components/company/dashboard/dashboard')
+            .then(m => m.DashboardComponent),
+      },
       {
         path: 'after-calc',
-        loadComponent: () => import('./components/company/after-calc/after-calc.component').then((m) => m.AfterCalcComponent),
-        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./components/company/after-calc/after-calc.component')
+            .then(m => m.AfterCalcComponent),
       },
     ],
-    canActivate: [authGuard],
-  },
-  {
-    path: 'individual',
-    children: [
-      { path: 'wizard', loadComponent: () => import('./components/individual/wizard-individual/wizard-individual.component').then((m) => m.WizardIndividualComponent) },
-      { path: 'dashboard', loadComponent: () => import('../app/components/individual/dash-individual/dash-individual.component').then((m) => m.DashIndividualComponent) },
-      {
-        path: 'individual-after-calc',
-        loadComponent: () => import('./components/individual/individual-after-calc/individual-after-calc.component').then((m) => m.IndividualAfterCalcComponent),
-      },
-    ],
-    canActivate: [authGuard],
   },
 
+  // ===================== INDIVIDUAL (ROLE_INDIVIDUAL) =====================
   {
-    path: 'after-calc',
-    loadComponent: () => import('./components/company/after-calc/after-calc.component').then((m) => m.AfterCalcComponent),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'guide',
-    loadComponent: () =>
-      import('./components/zakah-guide/zakah-guide').then((m) => m.ZakahGuide),
-    canActivate: [authGuard],
-  },
-  { path: 'navbar', component: Navbar, canActivate: [authGuard] },
-  {
-    path: 'profile',
-    loadComponent: () => import('./components/profile/profile').then((m) => m.Profile),
-    canActivate: [authGuard],
+    path: 'individual',
+     canActivate: [RoleGuard],
+    children: [
+      {
+        path: 'wizard',
+        loadComponent: () =>
+          import('./components/individual/wizard-individual/wizard-individual.component')
+            .then(m => m.WizardIndividualComponent),
+      },
+      {
+        path: '',
+        redirectTo: 'wizard',
+        pathMatch: "full"
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./components/individual/dash-individual/dash-individual.component')
+            .then(m => m.DashIndividualComponent),
+      },
+      {
+        path: 'after-calc',
+        loadComponent: () =>
+          import('./components/individual/individual-after-calc/individual-after-calc.component')
+            .then(m => m.IndividualAfterCalcComponent),
+      },
+    ],
   },
 
   // ===================== NOT FOUND =====================
   {
     path: 'not-found',
     loadComponent: () =>
-      import('./components/not-found/not-found.component').then((m) => m.NotFoundComponent),
+      import('./components/not-found/not-found.component')
+        .then(m => m.NotFoundComponent),
   },
 
   // ===================== WILDCARD =====================

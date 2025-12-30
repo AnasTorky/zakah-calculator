@@ -86,8 +86,9 @@ export class Register implements OnInit {
           queryParams: { email: encryptedEmail }
         });
       },
-      error: () => {
+      error: (err) => {
         alert('فشل إنشاء الحساب');
+        console.error('Register failed', err);
         this.isLoading = false;
       },
       complete: () => {

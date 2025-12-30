@@ -1,10 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { ZakahCompanyRecordSummaryResponse, ZakahCompanyRecordResponse } from '../../../models/response/ZakahCompanyResponse';
-import { ZakahCompanyRecordService } from '../../../services/zakah-company-service/zakah-company-service';
-import { CurrencyPipe, DatePipe } from '@angular/common';
-import { ZakahIndividualRecordService } from '../../../services/zakah-individual-service/zakah-individual-service';
-import { Router } from '@angular/router';
-import { ZakahIndividualRecordResponse, ZakahIndividualRecordSummaryResponse } from '../../../models/response/ZakahIndividualResponse';
+import {Component, computed, inject, signal} from '@angular/core';
+import {CurrencyPipe, DatePipe} from '@angular/common';
+import {ZakahIndividualRecordService} from '../../../services/zakah-individual-service/zakah-individual-service';
+import {Router} from '@angular/router';
+import {
+  ZakahIndividualRecordResponse,
+  ZakahIndividualRecordSummaryResponse
+} from '../../../models/response/ZakahIndividualResponse';
 
 @Component({
   selector: 'app-dash-individual',

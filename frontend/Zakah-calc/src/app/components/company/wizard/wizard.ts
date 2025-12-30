@@ -1,14 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal
-} from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
-import { Router } from '@angular/router';
-import { ZakahCompanyRecordRequest } from '../../../models/request/ZakahCompanyRequest';
-import { ZakahCompanyRecordService } from '../../../services/zakah-company-service/zakah-company-service';
-import { ZakahCompanyRecordSummaryResponse } from '../../../models/response/ZakahCompanyResponse';
+import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {ZakahCompanyRecordRequest} from '../../../models/request/ZakahCompanyRequest';
+import {ZakahCompanyRecordService} from '../../../services/zakah-company-service/zakah-company-service';
+import {ZakahCompanyRecordSummaryResponse} from '../../../models/response/ZakahCompanyResponse';
 import {ZakahCompanyExcelService} from '../../../services/zakah-company-service/zakah-company-excel-service';
 
 @Component({
@@ -50,7 +45,8 @@ export class ZakahCompanyRecordComponent {
 
   router = inject(Router);
 
-  constructor(private zakahService: ZakahCompanyRecordService,private excelService: ZakahCompanyExcelService) {}
+  constructor(private zakahService: ZakahCompanyRecordService, private excelService: ZakahCompanyExcelService) {
+  }
 
   next() {
     if (this.currentStep() < this.steps().length - 1) {
@@ -68,7 +64,7 @@ export class ZakahCompanyRecordComponent {
     const target = event.target as HTMLInputElement;
     const name = target.name as keyof ZakahCompanyRecordRequest;
     const value = target.type === 'number' ? Number(target.value) : target.value;
-    this.formData.update(prev => ({ ...prev, [name]: value }));
+    this.formData.update(prev => ({...prev, [name]: value}));
   }
 
   onFileChange(event: Event) {
@@ -95,17 +91,17 @@ export class ZakahCompanyRecordComponent {
 
 
   calculate() {
-  this.isCalculating.set(true);
+    this.isCalculating.set(true);
 
-  this.zakahService.calculateAndSave(this.formData()).subscribe({
-    next: (result) => {
-      // ✅ احفظ آخر نتيجة
-      this.zakahService.latestResult.set(result);
+    this.zakahService.calculateAndSave(this.formData()).subscribe({
+      next: (result) => {
+        // ✅ احفظ آخر نتيجة
+        this.zakahService.latestResult.set(result);
 
-      this.isCalculating.set(false);
-      this.router.navigate(['/after-calc']);
-    },
-    error: () => this.isCalculating.set(false)
-  });
-}
+        this.isCalculating.set(false);
+        this.router.navigate(['/company/after-calc']);
+      },
+      error: () => this.isCalculating.set(false)
+    });
+  }
 }

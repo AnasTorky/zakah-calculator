@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { CanActivateFn } from '@angular/router';
 
-import { landGuard } from './land-guard';
+import { authorizationGuardGuard } from './role-guard';
 
-describe('landGuard', () => {
-  const executeGuard: CanActivateFn = (...guardParameters) => 
-      TestBed.runInInjectionContext(() => landGuard(...guardParameters));
+describe('authorizationGuardGuard', () => {
+  const executeGuard: CanActivateFn = (...guardParameters) =>
+      TestBed.runInInjectionContext(() => authorizationGuardGuard(...guardParameters));
 
   beforeEach(() => {
     TestBed.configureTestingModule({});

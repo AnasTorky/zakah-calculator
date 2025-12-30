@@ -1,9 +1,7 @@
-import { Component, DoCheck, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
-import { Login } from "./components/auth/login/login";
-import { Navbar } from "./shared/navbar/navbar";
-import { Router } from '@angular/router';
-import { AuthService } from './services/auth-service/auth.service';
+import {Component, DoCheck, inject, signal} from '@angular/core';
+import {ActivatedRoute, Router, RouterOutlet} from '@angular/router';
+import {Navbar} from "./shared/navbar/navbar";
+import {AuthService} from './services/auth-service/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +10,7 @@ import { AuthService } from './services/auth-service/auth.service';
   styleUrl: './app.css'
 })
 export class App implements DoCheck{
- 
+
   protected readonly title = signal('Zakah-calc');
   private router = inject(Router);
   authState = inject(AuthService);

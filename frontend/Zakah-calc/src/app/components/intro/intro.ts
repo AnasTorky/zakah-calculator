@@ -9,13 +9,14 @@ import { UserType } from '../../models/enums/UserType';
   styleUrl: './intro.css',
 })
 export class Intro {
-type = AuthStorageService.getUserType() ?? UserType.ROLE_COMPANY;
+type = AuthStorageService.getUserType() ;
     router = inject(Router);
 startCalculation = output<void>();
 name = AuthStorageService.getUserFullName();
 
   onStart() {
     // this.startCalculation.emit();
+    console.log(this.type);
 if(this.type === "ROLE_INDIVIDUAL"){
         this.router.navigate(['/individual/wizard']);
       }else{

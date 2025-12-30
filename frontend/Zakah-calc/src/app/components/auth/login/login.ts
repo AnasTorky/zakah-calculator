@@ -5,6 +5,8 @@ import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../services/auth-service/auth.service';
 import { AuthenticationRequest } from '../../../models/request/IAuthRequest';
+import * as CryptoJS from 'crypto-js';
+import {environment} from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +16,7 @@ import { AuthenticationRequest } from '../../../models/request/IAuthRequest';
 })
 export class Login implements OnInit {
 
+  secretKey: string = environment.secretKey;
   loginForm!: FormGroup;
   isLoading = signal(false);
   serverError = signal<string | null>(null);
@@ -30,7 +33,9 @@ export class Login implements OnInit {
         '',
         [
           Validators.required,
-          Validators.email
+          Validators.email,
+          Validators.minLength(5),
+          Validators.maxLength(50)
         ]
       ],
       password: [
@@ -63,24 +68,34 @@ export class Login implements OnInit {
     };
 
     this.authService.login(request).subscribe({
-      next: (res) => {
+      next: () => {
         this.router.navigate(['/intro']);
       },
       error: (err) => {
-        if (err.status === 401) {
+        const code = err?.error?.code;
+
+        if (code === 'BAD_CREDENTIALS') {
           this.serverError.set('البريد الإلكتروني أو كلمة المرور غير صحيحة');
-        }else if (err.status === 406){
-          console.log("406" + err)
+        }
+
+        else if (code === 'ACCOUNT_NOT_VERIFIED') {
+          const encryptedEmail = CryptoJS.AES.encrypt(
+            request.email,
+            this.secretKey
+          ).toString();
+
           this.router.navigate(['/verify-otp'], {
-            queryParams: { email: request.email }
+            queryParams: { email: encryptedEmail }
           });
-        }else {
-          console.log("check here")
+        }
+
+        else {
           this.serverError.set('حدث خطأ غير متوقع، حاول مرة أخرى');
         }
+
         this.isLoading.set(false);
-      },
-      complete: () => this.isLoading.set(false)
+      }
     });
+
   }
 }

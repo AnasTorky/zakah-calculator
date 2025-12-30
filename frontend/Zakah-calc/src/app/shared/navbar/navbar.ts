@@ -3,11 +3,12 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthStorageService } from '../../services/storage-service/StorageService';
 import { AuthService } from '../../services/auth-service/auth.service';
 import { UserType } from '../../models/enums/UserType';
+import {ClickOutsideDirective} from '../../directives/ClickOutside.directive';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, ClickOutsideDirective],
   templateUrl: './navbar.html',
 })
 export class Navbar {
@@ -35,10 +36,19 @@ export class Navbar {
 
   switchWizard() {
     this.isProfileMenuOpen.set(false);
-    if(this.type === UserType.ROLE_COMPANY){
+    if(this.type === UserType.ROLE_INDIVIDUAL){
       this.router.navigate(['/individual/wizard']);
-    }else{
+    }else if (this.type === UserType.ROLE_COMPANY){
       this.router.navigate(['/company/wizard']);
+    }
+  }
+
+  switchDashboard() {
+    this.isProfileMenuOpen.set(false);
+    if(this.type === UserType.ROLE_INDIVIDUAL){
+      this.router.navigate(['/individual/dashboard']);
+    }else if (this.type === UserType.ROLE_COMPANY){
+      this.router.navigate(['/company/dashboard']);
     }
   }
 
@@ -48,4 +58,5 @@ export class Navbar {
     this.isProfileMenuOpen.set(false);
     this.router.navigate(['/']);
   }
+
 }
