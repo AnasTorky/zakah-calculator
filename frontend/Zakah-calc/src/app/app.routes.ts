@@ -1,15 +1,14 @@
-import { Routes } from '@angular/router';
-import { Login } from './components/auth/login/login';
-import { Register } from './components/auth/register/register';
-import { Landing } from './components/landing/landing';
-import { ForgetPasswordComponent } from './components/auth/forget-password/forget-password.component';
-import { Intro } from './components/intro/intro';
-import { Navbar } from './shared/navbar/navbar';
+import {Routes} from '@angular/router';
+import {Login} from './components/auth/login/login';
+import {Register} from './components/auth/register/register';
+import {Landing} from './components/landing/landing';
+import {ForgetPasswordComponent} from './components/auth/forget-password/forget-password.component';
+import {Intro} from './components/intro/intro';
+import {Navbar} from './shared/navbar/navbar';
 
-import { authGuard } from './guards/auth-guard/auth-guard';
-import { permitGuard } from './guards/permit-guard/permit-guard';
-import {RoleGuard} from './guards/authorization-guard/role-guard';
-import {WizardIndividualComponent} from './components/individual/wizard-individual/wizard-individual.component';
+import {authGuard} from './guards/auth-guard/auth-guard';
+import {permitGuard} from './guards/permit-guard/permit-guard';
+import {roleGuard} from './guards/authorization-guard/role-guard';
 
 
 export const routes: Routes = [
@@ -78,13 +77,8 @@ export const routes: Routes = [
 
   // ===================== COMPANY (ROLE_COMPANY) =====================
   {
-    path: 'wiza',
-    canActivate: [RoleGuard],
-    component: WizardIndividualComponent,
-  },
-  {
     path: 'company',
-    canActivate: [RoleGuard],
+      canActivate: [roleGuard],
     children: [
       {
         path: 'wizard',
@@ -115,7 +109,7 @@ export const routes: Routes = [
   // ===================== INDIVIDUAL (ROLE_INDIVIDUAL) =====================
   {
     path: 'individual',
-     canActivate: [RoleGuard],
+     canActivate: [roleGuard],
     children: [
       {
         path: 'wizard',

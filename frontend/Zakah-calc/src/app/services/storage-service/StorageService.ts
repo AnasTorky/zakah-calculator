@@ -113,8 +113,6 @@ export class AuthStorageService {
   }
 
   static getUser(): UserResponse | null {
-    if (!this.isBrowser()) return null;
-
     const encryptedKey = this.getEncryptedKey(USER_KEY);
     const encrypted = localStorage.getItem(encryptedKey);
 
@@ -130,12 +128,10 @@ export class AuthStorageService {
   }
 
   static getUserType(): UserType | null {
-    if (!this.isBrowser()) return null;
     return this.getUser()?.userType ?? null;
   }
 
   static getUserFullName(): string | null {
-    if (!this.isBrowser()) return null;
     return this.getUser()?.fullName ?? null;
   }
 
@@ -176,7 +172,6 @@ export class AuthStorageService {
   /* ================= MIGRATION HELPER ================= */
 
   static migrateOldData(): void {
-    if (!this.isBrowser()) return;
 
     const oldAccessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
     const oldRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);

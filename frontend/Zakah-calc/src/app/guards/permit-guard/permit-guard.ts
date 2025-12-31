@@ -1,22 +1,13 @@
-import { isPlatformBrowser } from '@angular/common';
-import { inject, PLATFORM_ID } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { inject } from '@angular/core';
 import { AuthStorageService } from '../../services/storage-service/StorageService';
 
-export const permitGuard: CanActivateFn = (route, state) => {
-  const platformId = inject(PLATFORM_ID);
+export const permitGuard: CanActivateFn = () => {
   const router = inject(Router);
 
-  // ✅ Allow on server (SSR)
-  if (!isPlatformBrowser(platformId)) {
-    return true;
-  }
-
-  const token = AuthStorageService.getAccessToken();
-
-  // ❌ If logged in → redirect away from guest pages
-  if (token) {
-    return router.navigate(['/intro']);
+  // لو المستخدم مسجل دخول → امنعه من صفحات الضيف
+  if (AuthStorageService.hasAccessToken()) {
+    return router.createUrlTree(['/intro']);
   }
 
   return true;
