@@ -7,6 +7,7 @@ import { ZakahCompanyRecordRequest } from '../../models/request/ZakahCompanyRequ
 import { ZakahCompanyExcelService } from './zakah-company-excel-service';
 import { AuthStorageService } from '../storage-service/StorageService';
 import { SoftwareCompanyModel } from '../../models/software-company-model';
+import {ZakahSoftwareCompanyExcelService} from './zakah-software-company-excel-service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class ZakahCompanyRecordService {
 
   private readonly BASE_URL = `${environment.apiUrl}/zakah/company`;
   private excelService = inject(ZakahCompanyExcelService);
+  private softwareExcelService = inject(ZakahSoftwareCompanyExcelService);
   formData = signal<ZakahCompanyRecordRequest>(this.getInitialFormData());
   formSoftwareData = signal<SoftwareCompanyModel>(this.getInitialSoftwareFormData());
 
@@ -28,7 +30,11 @@ export class ZakahCompanyRecordService {
   constructor(private http: HttpClient) { }
 
   getTemplate(): Observable<Blob> {
-    return this.http.get('/templates/balance_sheet_templete.xlsx', { responseType: 'blob' });
+    if (this.companyType ==='ROLE_COMPANY_SOFTWARE') {
+      return this.http.get('/templates/software_balance_sheet_template.xlsx', { responseType: 'blob' });
+    }else {
+      return this.http.get('/templates/balance_sheet_template.xlsx', { responseType: 'blob' });
+    }
   }
   resetForm(): void {
     this.formData.set(this.getInitialFormData());
@@ -37,10 +43,12 @@ export class ZakahCompanyRecordService {
   }
 
   readCompanyExcelObservable(file: File): Observable<ZakahCompanyRecordRequest> {
-    return from(this.excelService.readCompanyExcel(file));
+      return from(this.excelService.readCompanyExcel(file));
   }
 
-
+  readSoftwareCompanyExcelObservable(file: File): Observable<SoftwareCompanyModel> {
+    return from(this.softwareExcelService.readCompanyExcel(file));
+  }
 
 
   calculate(): Observable<ZakahCompanyRecordResponse> {

@@ -23,7 +23,6 @@ export class WizardSoftwareCompanyComponent implements OnInit {
   currentStep = this.zakahService.currentWizardStep;
   steps = this.zakahService.wizardSteps;
   isCalculating = this.zakahService.isCalculating;
-  companyType = this.zakahService.companyType;
 
   fileName = signal<string | null>(null);
   isLoading = signal(false);
@@ -156,12 +155,13 @@ export class WizardSoftwareCompanyComponent implements OnInit {
 
   downloadExcelTemplate(): void {
     this.downloadInProgress.set(true);
+
     this.zakahService.getTemplate().subscribe({
       next: (blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'software_balance_sheet_templete.xlsx';
+        link.download = 'software_balance_sheet_template.xlsx';
         link.click();
         URL.revokeObjectURL(url);
       },
@@ -169,6 +169,7 @@ export class WizardSoftwareCompanyComponent implements OnInit {
       complete: () => this.downloadInProgress.set(false)
     });
   }
+
 
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -179,38 +180,36 @@ export class WizardSoftwareCompanyComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.zakahService.readCompanyExcelObservable(file).subscribe({
+    this.zakahService.readSoftwareCompanyExcelObservable(file).subscribe({
       next: (excelData) => {
-        // ✅ **استخدم الدالة الجديدة**
+
+        // ✅ إرسال SoftwareCompanyModel مباشرة
         this.zakahService.updateSoftwareFormData({
-          cashEquivalents: excelData.cashEquivalents || 0,
-          investment: excelData.investment || 0,
-          inventory: excelData.inventory || 0,
-          accountsReceivable: excelData.accountsReceivable || 0,
-          accountsPayable: excelData.accountsPayable || 0,
-          accruedExpenses: excelData.accruedExpenses || 0,
-          shortTermLiability: excelData.shortTermLiability || 0,
-          yearlyLongTermLiabilities: excelData.yearlyLongTermLiabilities || 0,
-          goldPrice: excelData.goldPrice || 0,
+          ...excelData,
           balanceSheetDate: excelData.balanceSheetDate
-            ? this.normalizeToISO(excelData.balanceSheetDate.toString())
+            ? this.normalizeToISO(excelData.balanceSheetDate)
             : new Date().toISOString().split('T')[0],
-          netProfit: excelData.netProfit || 0,
-          generatingFixedAssets: excelData.generatingFixedAssets || 0,
-          contraAssets: excelData.contraAssets || 0,
-          provisionsUnderLiabilities: excelData.provisionsUnderLiabilities || 0
-        } as any);
+          goldPrice: excelData.goldPrice || 0,
+          netProfit: excelData.netProfit || 0
+        });
 
         const detailsStep = this.steps().indexOf('التفاصيل');
-        if (detailsStep !== -1) this.zakahService.goToStep(detailsStep);
+        if (detailsStep !== -1) {
+          this.zakahService.goToStep(detailsStep);
+        }
       },
-      error: () => this.errorMessage.set('حدث خطأ في قراءة ملف Excel.'),
+
+      error: () => {
+        this.errorMessage.set('حدث خطأ في قراءة ملف Excel.');
+      },
+
       complete: () => {
         this.isLoading.set(false);
         input.value = '';
       }
     });
   }
+
 
   // ================= Wizard =================
 

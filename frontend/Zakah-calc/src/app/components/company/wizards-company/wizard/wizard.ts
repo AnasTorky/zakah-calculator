@@ -153,7 +153,7 @@ export class ZakahCompanyRecordComponent implements OnInit {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'balance_sheet_templete.xlsx';
+        link.download = 'balance_sheet_template.xlsx';
         link.click();
         URL.revokeObjectURL(url);
       },
