@@ -109,7 +109,7 @@ public class ZakahCompanyRecordServiceImpl implements ZakahCompanyRecordService 
 
         Long userId = userUtil.getAuthenticatedUserId();
 
-        return recordRepository.findAllByUserIdOrderByBalanceSheetDateDesc(userId)
+        return recordRepository.findAllByUserIdOrderByLatest(userId)
                 .stream()
                 .map(mapper::toSummaryResponse)
                 .toList();

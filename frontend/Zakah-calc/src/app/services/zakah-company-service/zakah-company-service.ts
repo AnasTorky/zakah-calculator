@@ -194,7 +194,13 @@ export class ZakahCompanyRecordService {
   }
 
   loadById(id: number): Observable<ZakahCompanyRecordResponse> {
-    return this.http.get<ZakahCompanyRecordResponse>(`${this.BASE_URL}/${id}`);
+    return this.http.get<ZakahCompanyRecordResponse>(`${this.BASE_URL}/${id}`)
+      .pipe(
+        tap(response => {
+          console.log(response);
+          console.log(response.netProfit);
+        })
+      );
   }
 
   loadfullrecord(id: number): Observable<ZakahCompanyRecordResponse> {

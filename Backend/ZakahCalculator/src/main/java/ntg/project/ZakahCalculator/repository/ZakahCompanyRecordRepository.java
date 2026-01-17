@@ -3,6 +3,7 @@ package ntg.project.ZakahCalculator.repository;
 import ntg.project.ZakahCalculator.entity.ZakahCompanyRecord;
 import ntg.project.ZakahCalculator.entity.util.ZakahStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +15,13 @@ public interface ZakahCompanyRecordRepository
     ZakahCompanyRecord findByIdAndUserId(Long id, Long userId);
 
     //Get all balance sheet records by user id
-    List<ZakahCompanyRecord> findAllByUserIdOrderByBalanceSheetDateDesc(Long userId);
+    @Query("""
+    SELECT z
+    FROM ZakahCompanyRecord z
+    WHERE z.user.id = :userId
+    ORDER BY z.balanceSheetDate DESC, z.id DESC
+""")
+    List<ZakahCompanyRecord> findAllByUserIdOrderByLatest(Long userId);
 
     //Delete balance sheet record by id and user id
     void deleteByIdAndUserId(Long id,Long userId);
